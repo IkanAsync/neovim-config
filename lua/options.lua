@@ -8,7 +8,7 @@ o.showmode = false
 o.splitkeep = "screen"
 
 o.clipboard = "unnamedplus"
-o.cursorline = true
+o.cursorline = false
 o.cursorlineopt = "number"
 
 -- Indenting

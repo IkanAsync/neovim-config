@@ -122,6 +122,7 @@ return {
 		M.defaults()
 
 		local servers = {
+			-- lua lsp
 			lua_ls = {
 				settings = {
 					Lua = {
@@ -139,6 +140,8 @@ return {
 					},
 				},
 			},
+
+			-- golang lsp
 			gopls = {
 				settings = {
 					gopls = {
@@ -155,8 +158,9 @@ return {
 					},
 				},
 			},
-			emmet_language_server = {
 
+			-- emmet lsp
+			emmet_language_server = {
 				filetypes = {
 					"css",
 					"eruby",
@@ -195,6 +199,9 @@ return {
 					variables = {},
 				},
 			},
+
+			-- bash lsp
+			bashls = {},
 		}
 
 		require("mason-tool-installer").setup({
