@@ -8,7 +8,7 @@ local M = {
 			html = { "prettier" },
 			go = { "goimports" },
 			python = { "black" },
-			-- kdl = { "kdlfmt" },
+			kdl = { "kdlfmt" },
 			sh = { "shfmt" },
 		},
 
