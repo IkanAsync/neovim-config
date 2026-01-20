@@ -46,6 +46,7 @@ return {
 
 			map("n", "]w", diagnostic_goto(true, "WARN"), { desc = "Next Warning" })
 			map("n", "[w", diagnostic_goto(false, "WARN"), { desc = "Next Warning" })
+			map("n", "<leader>cf", vim.lsp.buf.format, { desc = "Format file" })
 		end
 
 		M.on_init = function(client, _)
@@ -127,7 +128,7 @@ return {
 				settings = {
 					Lua = {
 						runtime = { version = "LuaJIT" },
-						diagnostic = {
+						diagnostics = {
 							globals = { "love" },
 						},
 						workspace = {

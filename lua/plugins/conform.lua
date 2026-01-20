@@ -8,10 +8,17 @@ local M = {
 			html = { "prettier" },
 			go = { "goimports" },
 			python = { "black" },
-			-- kdl = { "kdlfmt" },
+			kdl = { "kdlfmt" },
 			sh = { "shfmt" },
+			rust = { "rustfmt" },
 		},
 
+		formatters = {
+			rustfmt = {
+				command = "rustfmt", -- dari rustup
+				stdin = true,
+			},
+		},
 		format_on_save = {
 			timeout_ms = 500,
 			lsp_fallback = false,
@@ -19,7 +26,11 @@ local M = {
 	},
 }
 
-local mason_tools = vim.tbl_flatten(vim.tbl_values(M.opts.formatters_by_ft))
+-- local mason_tools = vim.tbl_flatten(vim.tbl_values(M.opts.formatters_by_ft))
+
+local mason_tools = vim.tbl_filter(function(tool)
+	return tool ~= "rustfmt"
+end, vim.tbl_flatten(vim.tbl_values(M.opts.formatters_by_ft)))
 
 require("mason").setup()
 require("mason-tool-installer").setup({
