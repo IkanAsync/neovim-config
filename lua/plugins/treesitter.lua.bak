@@ -1,8 +1,8 @@
 return {
     "nvim-treesitter/nvim-treesitter",
     branch = "main",
+    enable = false,
     opts = {
-
         ensure_installed = {
             "lua",
             "luadoc",
@@ -14,7 +14,11 @@ return {
             "rust",
             "ocaml",
             "slint",
-        }
+        },
+        highlight = {
+            enable = true,
+            additional_vim_regex_highlighting = false,
+        },
     },
     config = function(_, opts)
         vim.api.nvim_create_autocmd("FileType", {

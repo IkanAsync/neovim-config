@@ -16,6 +16,8 @@ map("n", "<C-l>", "<C-w>l", { desc = "switch window right" })
 map("n", "<C-j>", "<C-w>j", { desc = "switch window down" })
 map("n", "<C-k>", "<C-w>k", { desc = "switch window up" })
 
+map("i", "<M-Space>", "~")
+
 map({ "n", "x", "o" }, "s", function()
     require("flash").jump()
 end, { noremap = true, silent = true, nowait = true, desc = "Flash" })
@@ -41,12 +43,49 @@ map("n", "<leader>4", function()
     miniharp.go_to(4)
 end, { desc = "miniharp: go to mark 4" })
 
-local gpu_enabled = false
-vim.keymap.set("n", "<leader>rr", function()
-    if gpu_enabled then
-        vim.cmd("silent! RustGpuDisable")
-    else
+local enable = false
+
+map("n", "<leader>rr", function()
+    if not enable then
         vim.cmd("silent! RustGpuEnable")
+    else
+        vim.cmd("silent! RustGpuDisable")
     end
-    gpu_enabled = not gpu_enabled -- Balikkan status
-end, { desc = "Toggle Rust GPU via command", silent = true })
+    enable = not enable
+end, { desc = "Toggle Gpu" })
+
+local Terminal = require("toggleterm.terminal").Terminal
+
+local run = Terminal:new {
+    cmd = "make run",
+    hidden = true,
+    direction = "float",
+    float_opts = {
+        border = "rounded",
+        width = 180,
+        height = 50,
+        winblend = 3,
+    },
+}
+local lazygit = Terminal:new {
+    cmd = "lazygit",
+    hidden = true,
+    direction = "float",
+    float_opts = {
+        border = "rounded",
+        width = 180,
+        height = 50,
+        winblend = 3,
+    },
+}
+
+local function lazygit_toggle()
+    lazygit:toggle()
+end
+local function run_toggle()
+    run:toggle()
+end
+
+map("n", "<leader>cc", function()
+    run_toggle()
+end, { desc = "Make run", silent = true, noremap = true })

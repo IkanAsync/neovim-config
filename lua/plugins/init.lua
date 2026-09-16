@@ -17,11 +17,11 @@ return {
         opts = {}
     },
 
-    {
-        'nvim-mini/mini.pairs',
-        version = '*',
-        opts = {}
-    },
+    -- {
+    --     'nvim-mini/mini.pairs',
+    --     version = '*',
+    --     opts = {}
+    -- },
     {
         "nvim-mini/mini.surround",
         event = { "BufReadPre", "BufNewFile" },
@@ -53,6 +53,7 @@ return {
                 },
             },
         },
+
         keys = {
             { "<leader>e", "<cmd>Oil --preview --float<CR>", desc = "Oil", silent = true }
         }

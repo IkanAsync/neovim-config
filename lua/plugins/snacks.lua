@@ -92,5 +92,15 @@ return {
             quickfile = { enabled = true },
             lazygit = { enabled = true },
         },
+        keys = {
+            {
+                "<leader>fl",
+                function()
+                    Snacks.picker.lines()
+                end,
+                silent = true,
+                desc = "Fine Line"
+            }
+        }
     },
 }

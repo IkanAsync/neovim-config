@@ -27,19 +27,28 @@ vim.api.nvim_create_autocmd("BufReadPost", {
     end,
 })
 
-local function toggle_gpu_version(enable)
-    -- Ambil tabel saat ini atau buat tabel baru jika nil
-    local config = vim.g.rustaceanvim or {}
+vim.api.nvim_create_autocmd("FileType", {
+    callback = function(ev)
+        pcall(vim.treesitter.start, ev.buf)
+    end
+})
 
-    -- Pastikan struktur tabel tersedia di level lokal
+local function toggle_gpu_version(enable)
+    local current_config = vim.g.rustaceanvim
+    local config = {}
+
+    if type(current_config) == "function" then
+        config = current_config()
+    elseif type(current_config) == "table" then
+        config = current_config
+    end
+
     config.server = config.server or {}
     config.server.default_settings = config.server.default_settings or {}
     config.server.default_settings["rust-analyzer"] = config.server.default_settings["rust-analyzer"] or {}
 
-    -- Tentukan list fitur
     local features_list = enable and { "versi-gpu" } or {}
 
-    -- Update nilai pada tabel lokal
     config.server.default_settings["rust-analyzer"].cargo = {
         features = features_list,
     }
@@ -48,18 +57,14 @@ local function toggle_gpu_version(enable)
         extraArgs = { "-j", "2" },
     }
 
-    -- Terapkan kembali ke global variable (PENTING: Harus assign ulang seluruh tabel)
     vim.g.rustaceanvim = config
 
-    -- Notifikasi
     local status = enable and "aktif" or "non-aktif"
     vim.notify("versi-gpu " .. status, vim.log.levels.INFO, { title = "Rustaceanvim" })
 
-    -- Restart LSP
     vim.cmd("LspRestart rust_analyzer")
 end
 
--- Command tetap sama
 vim.api.nvim_create_user_command("RustGpuEnable", function()
     toggle_gpu_version(true)
 end, {})
@@ -67,3 +72,15 @@ end, {})
 vim.api.nvim_create_user_command("RustGpuDisable", function()
     toggle_gpu_version(false)
 end, {})
+
+-- vim.g.rustaceanvim = {
+--     server = {
+--         default_settings = {
+--             ['rust-analyzer'] = {
+--                 cargo = {
+--                     target = "x86_64-linux-android",
+--                 },
+--             },
+--         },
+--     },
+-- }

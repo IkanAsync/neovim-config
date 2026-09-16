@@ -1,6 +1,6 @@
-return{
+return {
     "stevearc/conform.nvim",
-    opts ={
+    opts = {
         formatters_by_ft = {
             lua = { "stylua" },
             css = { "prettier" },
@@ -14,6 +14,7 @@ return{
             slint = { "slint_lsp" },
             go = { "goimports", "gofumpt" },
         },
+
 
         format_on_save = {
             timeout_ms = 500,

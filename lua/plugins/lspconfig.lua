@@ -12,7 +12,7 @@ return {
                 },
             },
             max_concurrent_installers = 10,
-        }
+        },
     },
     {
         "williamboman/mason-lspconfig.nvim",
@@ -25,43 +25,34 @@ return {
     {
         "neovim/nvim-lspconfig",
         lazy = false,
-        -- dependencies = {
-        --     { "j-hui/fidget.nvim", opts = {} },
-        -- },
         config = function()
             vim.api.nvim_create_autocmd("LspAttach", {
-                group = vim.api.nvim_create_augroup("UserLspConfig", { clear = true }),
-                callback = function(ev)
-                    local opts = function(desc)
-                        return { buffer = ev.buf, desc = desc }
+                callback = function(args)
+                    local bufnr = args.buf
+                    local map = vim.keymap.set
+                    local function lsp_opts(desc)
+                        return { buffer = bufnr, desc = "LSP " .. desc }
                     end
 
-                    local map = function(mode, lhs, rhs, options)
-                        vim.keymap.set(mode, lhs, rhs, options)
-                    end
-
-                    local client = vim.lsp.get_client_by_id(ev.data.client_id)
+                    local client = vim.lsp.get_client_by_id(args.data.client_id)
 
                     if client.server_capabilities.inlayHintProvider then
                         vim.lsp.inlay_hint.enable(true)
                     end
 
-
-
-                    map("n", "gD", vim.lsp.buf.declaration, opts "Go to declaration")
-                    map("n", "gd", vim.lsp.buf.definition, opts "Go to definition")
-                    map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, opts "Add workspace folder")
-                    map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, opts "Remove workspace folder")
+                    map("n", "gD", vim.lsp.buf.declaration, lsp_opts("Go to declaration"))
+                    map("n", "gd", vim.lsp.buf.definition, lsp_opts("Go to definition"))
+                    map("n", "<leader>wa", vim.lsp.buf.add_workspace_folder, lsp_opts("Add workspace folder"))
+                    map("n", "<leader>wr", vim.lsp.buf.remove_workspace_folder, lsp_opts("Remove workspace folder"))
 
                     map("n", "<leader>wl", function()
                         print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-                    end, opts "List workspace folders")
+                    end, lsp_opts("List workspace folders"))
 
-                    map("n", "<leader>D", vim.lsp.buf.type_definition, opts "Go to type definition")
-                    map("n", "<leader>cr", vim.lsp.buf.rename, opts "Rename")
-                    map("n", "<leader>cd", vim.diagnostic.open_float, opts "Diagnostic")
-                    map("n", "<leader>ca", vim.lsp.buf.code_action, opts "Code action")
-                end
+                    map("n", "<leader>cr", vim.lsp.buf.rename, lsp_opts("Rename"))
+                    map("n", "<leader>cd", vim.diagnostic.open_float, lsp_opts("Diagnostic"))
+                    map("n", "<leader>ca", vim.lsp.buf.code_action, lsp_opts("Code action"))
+                end,
             })
 
             vim.diagnostic.config({
@@ -91,6 +82,27 @@ return {
                 },
             })
 
+            local capabilities = require("blink.cmp").get_lsp_capabilities()
+
+            capabilities.textDocument.completion.completionItem.labelDetailsSupport = true
+
+            local on_init = function(client, _)
+                if vim.fn.has("nvim-0.11") ~= 1 then
+                    if client.supports_method("textDocument/semanticTokens") then
+                        client.server_capabilities.semanticTokensProvider = nil
+                    end
+                else
+                    if client:supports_method("textDocument/semanticTokens") then
+                        client.server_capabilities.semanticTokensProvider = nil
+                    end
+                end
+            end
+
+            vim.lsp.config("*", {
+                capabilities = capabilities,
+                on_init = on_init,
+            })
+
             local servers = {
                 slint_lsp = {
                     filetypes = { "slint" },
@@ -115,8 +127,19 @@ return {
                 },
                 ocamllsp = {
                     cmd = { "/home/ikanasync/.opam/default/bin/ocamllsp" },
-                    filetypes = { "ml", "ocaml", "ocaml.interface", "ocaml.menhir", "ocaml.preprocess" },
-                    root_markers = { ".git", "stack.yaml", "cabal.project" },
+                    filetypes = {
+                        'ocaml',
+                        'ocaml.interface',
+                        'ocaml.menhir',
+                        'ocaml.ocamllex',
+                        'dune',
+                        'reason'
+                    },
+                    root_markers = {
+                        { 'dune-project', 'dune-workspace' },
+                        { "*.opam",       "esy.json",      "package.json" },
+                        '.git'
+                    },
                     settings = {
                         inlayHints = {
                             enable = true,
@@ -129,7 +152,7 @@ return {
                 pyright = {
                     filetypes = { "python" },
                     root_markers = { ".git", "pyproject.toml" },
-                }
+                },
             }
 
             vim.lsp.enable("slint-lsp")
@@ -138,6 +161,7 @@ return {
                 if not opts.root_dir then
                     opts.root_dir = vim.fs.root(0, { ".git", "go.mod", "package.json", "stack.yaml", "cabal.project" })
                 end
+                opts.capabilities = vim.tbl_deep_extend("force", capabilities, opts.capabilities or {})
                 vim.lsp.config(name, opts)
                 vim.lsp.enable(name)
                 vim.api.nvim_create_autocmd("FileType", {
@@ -147,6 +171,7 @@ return {
                     end,
                 })
             end
-        end
+            return {}
+        end,
     },
 }

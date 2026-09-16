@@ -1,4 +1,3 @@
-local builtin = require("telescope.actions")
 return {
     {
         'nvim-telescope/telescope.nvim',
@@ -8,64 +7,62 @@ return {
             { 'nvim-telescope/telescope-fzf-native.nvim', build = 'make' },
             { "nvim-telescope/telescope-ui-select.nvim" },
         },
-        opts = {
-            defaults = {
-                file_ignore_patterns = {
-                    "__pycache__/",
-                    "__init__.py",
-                    "node_modules/",
-                    "deps",
-                    "modules",
-                    "_build",
-                    "zig-pkg/tui*",
-                },
-                prompt_prefix = "   ",
-                selection_caret = " ",
-                entry_prefix = " ",
-                sorting_strategy = "ascending",
-                layout_config = {
-                    horizontal = {
-                        prompt_position = "top",
-                        preview_width = 0.55,
+        opts = function()
+            require("telescope").setup({
+                defaults = {
+                    file_ignore_patterns = {
+                        "__pycache__/",
+                        "__init__.py",
+                        "node_modules/",
+                        "deps",
+                        "modules",
+                        "_build",
+                        "zig-pkg/tui*",
                     },
-                    width = 0.87,
-                    height = 0.80,
-                },
-                mappings = {
-                    n = { ["q"] = builtin.close },
-                    i = {
-                        ["<Tab>"] = builtin.move_selection_next,
-                        ["<S-Tab>"] = builtin.move_selection_previous,
-                        ["<C-j>"] = builtin.move_selection_next,
-                        ["<C-k>"] = builtin.move_selection_previous,
-                        ["<Esc>"] = builtin.close,
+                    prompt_prefix = "   ",
+                    selection_caret = " ",
+                    entry_prefix = " ",
+                    sorting_strategy = "ascending",
+                    layout_config = {
+                        horizontal = {
+                            prompt_position = "top",
+                            preview_width = 0.55,
+                        },
+                        width = 0.87,
+                        height = 0.80,
+                    },
+                    mappings = {
+                        n = { ["q"] = require("telescope.actions").close },
+                        i = {
+                            ["<Tab>"] = require("telescope.actions").move_selection_next,
+                            ["<S-Tab>"] = require("telescope.actions").move_selection_previous,
+                            ["<C-j>"] = require("telescope.actions").move_selection_next,
+                            ["<C-k>"] = require("telescope.actions").move_selection_previous,
+                            ["<Esc>"] = require("telescope.actions").close,
+                        },
                     },
                 },
-            },
-            extensions = {
-                fzf = {
-                    fuzzy = true,                   -- false will only do exact matching
-                    override_generic_sorter = true, -- override the generic sorter
-                    override_file_sorter = true,    -- override the file sorter
-                    case_mode = "smart_case",       -- or "ignore_case" or "respect_case"
-                    -- the default case_mode is "smart_case"
+                extensions = {
+                    fzf = {
+                        fuzzy = true,
+                        override_generic_sorter = true,
+                        override_file_sorter = true,
+                        case_mode = "smart_case",
+                    },
+                    aerial = {
+                        col1_width = 4,
+                        col2_width = 30,
+                        format_symbol = function(symbol_path, filetype)
+                            if filetype == "json" or filetype == "yaml" then
+                                return table.concat(symbol_path, ".")
+                            else
+                                return symbol_path[#symbol_path]
+                            end
+                        end,
+                        show_columns = "both",
+                    },
                 },
-                aerial = {
-                    col1_width = 4,
-                    col2_width = 30,
-                    format_symbol = function(symbol_path, filetype)
-                        if filetype == "json" or filetype == "yaml" then
-                            return table.concat(symbol_path, ".")
-                        else
-                            return symbol_path[#symbol_path]
-                        end
-                    end,
-                    show_columns = "both",
-                },
-            },
-        },
-        config = function(_, opts)
-            require("telescope").setup(opts)
+            })
             require("telescope").load_extension "ui-select"
         end,
         keys = {
